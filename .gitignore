@@ -40,7 +40,6 @@ logs/
 
 # Data files
 *.csv
-*.json
 *.xlsx
 
 # Testing
