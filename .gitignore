@@ -1,13 +1,9 @@
-# Environment variables
-.env
-
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -26,6 +22,7 @@ wheels/
 
 # Virtual Environment
 venv/
+env/
 ENV/
 
 # IDE
@@ -33,20 +30,40 @@ ENV/
 .vscode/
 *.swp
 *.swo
+.project
+.pydevproject
+.settings/
 
-# Logs
+# Logs and databases
 *.log
+*.sqlite
 logs/
+*.db
 
-# Data files
+# Environment variables
+.env
+.env.*
+
+# Test coverage
+.coverage
+htmlcov/
+coverage.xml
+
+# Documentation
+docs/_build/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Trading specific
+backtest_results/
+trade_history/
 *.csv
 *.xlsx
+*.json
+!example_config.json
 
-# Testing
-.coverage
-.pytest_cache/
-htmlcov/
-
-# Project specific
-data/
-results/
+# OS specific
+.DS_Store
+Thumbs.db
