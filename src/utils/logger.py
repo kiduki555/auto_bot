@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from typing import Optional
+import os
 
 
 class Logger:
@@ -28,6 +29,8 @@ class Logger:
         ch.setFormatter(formatter)
         
         # Create file handler
+        os.makedirs('logs', exist_ok=True)
+
         fh = logging.FileHandler(
             f'logs/{self.symbol}_{self.index}_{datetime.now().strftime("%Y%m%d")}.log'
         )

@@ -1,4 +1,4 @@
-from ..base import Strategy
+from src.strategies.base import Strategy
 import pandas as pd
 import ta
 

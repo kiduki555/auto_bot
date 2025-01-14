@@ -5,9 +5,11 @@ import telegram
 from telegram.ext import Application, CommandHandler, ContextTypes
 from telegram import Update
 import os
-from dotenv import load_load_dotenv
+from dotenv import load_dotenv
 
 load_dotenv()
+
+print("Telegram Bot Token:", os.getenv('TELEGRAM_BOT_TOKEN'))  # 디버깅용 출력
 
 
 class TelegramNotifier:

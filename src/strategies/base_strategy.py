@@ -1,7 +1,7 @@
 from typing import Dict, Any, Optional, Tuple
 import pandas as pd
 from abc import ABC, abstractmethod
-from ..utils.logger import Logger
+from src.utils.logger import Logger
 
 
 class BaseStrategy(ABC):

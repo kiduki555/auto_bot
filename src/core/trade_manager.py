@@ -1,6 +1,6 @@
 from typing import Dict, List, Optional, Any
 from datetime import datetime
-from ..utils.logger import Logger
+from src.utils.logger import Logger
 
 
 class TradeManager:
