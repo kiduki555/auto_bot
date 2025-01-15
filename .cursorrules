@@ -1,0 +1,79 @@
+rules:
+  - id: folder-structure
+    applies_to: "*"
+    description: |
+      The project must follow the specified folder structure:
+      - `scripts/`: Contains execution scripts (e.g., `run_bot.py`, `run_backtest.py`).
+      - `src/`: Source code for core logic, indicators, strategies, and utilities.
+      - `core/`: Core trading logic such as order management and data processing.
+      - `indicators/`: Implementation of technical indicators (e.g., RSI, MACD).
+      - `strategies/`: Contains various trading strategies (e.g., MACD, RSI).
+      - `utils/`: General utilities like logging and configuration handling.
+      Ensure that all files and directories are appropriately placed.
+    enforcement: |
+      Check if all required folders exist. Warn if missing or misnamed files are detected.
+
+  - id: python-naming-conventions
+    applies_to: "*.py"
+    description: |
+      Python file names must follow snake_case. Class names must follow PascalCase.
+      Function and variable names must use snake_case for consistency.
+    enforcement: |
+      Check file names against snake_case naming convention.
+      Check class names for PascalCase and function/variable names for snake_case.
+
+  - id: risk-management-parameters
+    applies_to: "src/core/*.py"
+    description: |
+      All risk management parameters (e.g., `RISK_PER_TRADE`, `LEVERAGE`) should be configurable
+      through the `.env` file or a dedicated configuration file.
+    enforcement: |
+      Verify if critical parameters are dynamically fetched from the configuration files.
+
+  - id: strategy-implementation
+    applies_to: "src/strategies/*.py"
+    description: |
+      Each strategy must:
+      1. Include a clear docstring explaining its purpose and parameters.
+      2. Have test coverage with examples of expected behavior.
+      3. Use built-in indicators from the `src/indicators/` directory or properly document custom logic.
+    enforcement: |
+      Ensure all strategies contain a docstring and import required indicators from the correct module.
+
+  - id: logging-best-practices
+    applies_to: "src/**/*.py"
+    description: |
+      Use structured logging for all critical operations, including trades, errors, and strategy evaluations.
+      Logs must include timestamps and be configurable for different verbosity levels (e.g., DEBUG, INFO, WARN).
+    enforcement: |
+      Check for consistent usage of a centralized logging utility (e.g., `src/utils/logger.py`).
+
+  - id: performance-metrics
+    applies_to: "scripts/run_backtest.py"
+    description: |
+      The backtesting script must calculate and display performance metrics:
+      - Win rate
+      - Risk/reward ratio
+      - Maximum drawdown
+      - Sharpe ratio
+      - Daily/Monthly returns
+    enforcement: |
+      Ensure all required metrics are calculated and presented in the backtesting output.
+
+  - id: test-coverage
+    applies_to: "*.py"
+    description: |
+      All new modules must include unit tests. Tests must cover:
+      1. Correct behavior of strategies with example inputs.
+      2. Risk management logic under edge cases.
+      3. Integration of strategies with the core trading system.
+    enforcement: |
+      Check if all functions and classes have corresponding test cases in the `tests/` directory.
+
+  - id: sensitive-data-handling
+    applies_to: ".env"
+    description: |
+      All sensitive information, such as API keys and Telegram tokens, must be stored in the `.env` file
+      and should not be hardcoded in any source files.
+    enforcement: |
+      Check if sensitive information is present in the `.env` file and not in Python scripts.
