@@ -62,6 +62,12 @@ class AdaptiveSuperTrendStrategy:
 
         return supertrend, direction
 
+    def calculate_sl_tp(self, current_price: float, atr: float) -> Dict[str, float]:
+        """Calculate dynamic stop loss and take profit levels"""
+        sl = current_price - (atr * 1.5)  # Example: SL is 1.5 times ATR below the current price
+        tp = current_price + (atr * 3.0)   # Example: TP is 3 times ATR above the current price
+        return {'stop_loss': sl, 'take_profit': tp}
+
     def get_signal(self, data: pd.DataFrame, current_position: int) -> Optional[str]:
         """
         Generate trading signal based on Adaptive SuperTrend
@@ -86,11 +92,16 @@ class AdaptiveSuperTrendStrategy:
 
         supertrend, direction = self.calculate_supertrend(data, assigned_centroid)
 
+        # Calculate SL and TP based on the current price and ATR
+        current_price = data['close'].iloc[-1]
+        atr_value = volatility.iloc[-1]
+        sl_tp = self.calculate_sl_tp(current_price, atr_value)
+
         # Determine the signal based on direction
         if direction.iloc[-1] == -1 and current_position <= 0:
-            return 'buy'
+            return 'buy', sl_tp['stop_loss'], sl_tp['take_profit']
         elif direction.iloc[-1] == 1 and current_position >= 0:
-            return 'sell'
+            return 'sell', sl_tp['stop_loss'], sl_tp['take_profit']
 
         return None
 

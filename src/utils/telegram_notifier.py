@@ -52,9 +52,11 @@ class TelegramNotifier:
     async def start(self) -> None:
         """Start the telegram bot"""
         try:
-            await self.app.initialize()
+            if self.app.running:
+                await self.app.stop()  # Ensure to stop if already running
+            await self.app.initialize()  # Ensure the application is initialized
             await self.app.start()
-            await self.app.run_polling()
+
         except Exception as e:
             print(f"Error starting Telegram bot: {str(e)}")
 

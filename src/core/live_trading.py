@@ -1,11 +1,12 @@
 from typing import Optional, Dict, Any
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .trading_bot import TradingBot
 from .trade_manager import TradeManager
-from ..config.live_trading_config import TradingConfig, make_decision_options
-from ..utils.logger import Logger
+from config.live_trading_config import TradingConfig, make_decision_options
+from utils.logger import Logger
+from exchanges.exchange import BinanceExchange
 
 
 class LiveTrading:
@@ -15,16 +16,30 @@ class LiveTrading:
     def __init__(
         self,
         config: TradingConfig,
-        exchange_client: Any,
-        initial_balance: float = 10000.0
+        exchange_client: BinanceExchange,
+        strategy: str = None,
+        notifier: Any = None
     ):
         self.config = config
         self.exchange = exchange_client
         self.logger = Logger(config.symbol)
         
+        # 잔고 조회
+        balance = self.exchange.get_futures_balance()
+        print("Futures Balance:", balance)
+
+        # 현재 가격 조회
+        current_price = self.exchange.get_futures_symbol_price("BTCUSDT")
+        print("Current BTCUSDT Price:", current_price)
+
+        # 최근 거래 내역 조회
+        recent_trades = self.exchange.get_recent_trades("BTCUSDT")
+        print("Recent Trades:", recent_trades)
+
+        # TradeManager 초기화
         self.trade_manager = TradeManager(
+            exchange=self.exchange,
             symbol=config.symbol,
-            initial_balance=initial_balance,
             risk_per_trade=config.risk_per_trade,
             max_position_size=config.max_position_size
         )
@@ -32,18 +47,27 @@ class LiveTrading:
         self.bot = None
         self.is_running = False
         self.last_candle_time: Optional[datetime] = None
+        self.strategy = strategy
+        self.notifier = notifier
 
-    async def initialize(self) -> None:
+    def initialize(self) -> None:
         """Initialize the trading bot with historical data"""
         try:
+            # 현재 시간에서 4시간 전의 시간 계산
+            four_hours_ago = datetime.utcnow() - timedelta(hours=4)
+            start_str = four_hours_ago.strftime("%Y-%m-%d %H:%M:%S")
+
             # Fetch historical data from exchange
-            historical_data = await self.exchange.fetch_ohlcv(
+            historical_data = self.exchange.get_historical_klines(
                 self.config.symbol,
                 self.config.timeframe,
-                limit=100
+                start_str=start_str,
+                end_str="now UTC"  # 현재 시간
             )
-            
-            # Process historical data
+            # Ensure historical_data is processed correctly
+            if historical_data is None or len(historical_data) == 0:
+                raise ValueError("No historical data returned.")
+            # Process historical data as needed
             dates = [str(candle[0]) for candle in historical_data]
             open_prices = [candle[1] for candle in historical_data]
             high_prices = [candle[2] for candle in historical_data]
@@ -142,14 +166,14 @@ class LiveTrading:
     async def start(self) -> None:
         """Start the live trading process"""
         try:
-            await self.initialize()
+            self.initialize()
             self.is_running = True
             
             while self.is_running:
                 # Fetch latest candle
-                latest_candle = await self.exchange.fetch_ohlcv(
-                    self.config.symbol,
-                    self.config.timeframe,
+                latest_candle = self.exchange.client.get_klines(
+                    symbol=self.config.symbol,
+                    interval=self.config.timeframe,
                     limit=1
                 )
                 

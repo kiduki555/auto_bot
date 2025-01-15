@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional, Any
 from datetime import datetime
-from src.utils.logger import Logger
+from utils.logger import Logger
+from exchanges.exchange import BinanceExchange
 
 
 class TradeManager:
@@ -9,13 +10,22 @@ class TradeManager:
     """
     def __init__(
         self,
+        exchange: BinanceExchange,
         symbol: str,
-        initial_balance: float,
         risk_per_trade: float = 0.02,
         max_position_size: float = 1.0
     ):
+        self.exchange = exchange
         self.symbol = symbol
-        self.balance = initial_balance
+        
+        # 잔고 조회
+        balance_info = self.exchange.get_futures_balance()
+        print("Futures Balance:", balance_info)
+
+        # 포지션 정보 조회
+        position_info = self.exchange.get_position_info(symbol)
+        print("Position Info:", position_info)
+
         self.risk_per_trade = risk_per_trade
         self.max_position_size = max_position_size
         self.current_position = 0

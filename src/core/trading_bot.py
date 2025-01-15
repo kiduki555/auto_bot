@@ -1,12 +1,4 @@
 from typing import List, Optional, Any
-import pandas as pd
-from ta.momentum import stochrsi_d, stochrsi_k, stoch, stoch_signal, rsi
-from ta.trend import ema_indicator, macd_signal, macd, sma_indicator
-from ta.volatility import average_true_range, bollinger_pband
-
-from ..utils.logger import Logger
-from ..config.live_trading_config import custom_tp_sl_functions, make_decision_options, wait_for_candle_close
-
 
 class TradingBot:
     """

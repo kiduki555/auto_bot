@@ -2,19 +2,19 @@ import asyncio
 import os
 from datetime import datetime
 from dotenv import load_dotenv
-from src.config.live_trading_config import TradingConfig
-from src.core.live_trading import LiveTrading
-from src.utils.telegram_notifier import TelegramNotifier
-from src.utils.logger import Logger
-from src.strategies.implementations.adaptive_supertrend_strategy import AdaptiveSuperTrendStrategy
-from src.strategies.implementations.future_trend_strategy import FutureTrendStrategy
+from config.live_trading_config import TradingConfig
+from core.live_trading import LiveTrading
+from utils.telegram_notifier import TelegramNotifier
+from utils.logger import Logger
+from strategies.implementations.adaptive_supertrend_strategy import AdaptiveSuperTrendStrategy
+from strategies.implementations.future_trend_strategy import FutureTrendStrategy
+from exchanges.exchange import BinanceExchange
 
 # Load environment variables
 load_dotenv()
 
 # Initialize logger
 logger = Logger('Main')
-
 
 async def main():
     try:
@@ -33,13 +33,17 @@ async def main():
             trailing_stop_distance=float(os.getenv('TRAILING_STOP_DISTANCE', 0.005))
         )
         
+        # Initialize Binance exchange
+        exchange = BinanceExchange()
+        
         # Initialize Telegram notifier
         notifier = TelegramNotifier()
         
         # Initialize trading bot
         trader = LiveTrading(
             config=config,
-            strategy=AdaptiveSuperTrendStrategy(),  # 사용할 전략
+            exchange_client=exchange,
+            strategy=AdaptiveSuperTrendStrategy(),
             notifier=notifier
         )
         
@@ -48,7 +52,7 @@ async def main():
         
         # Start trading
         await trader.start()
-        
+
         # Keep the program running
         while True:
             await asyncio.sleep(1)
@@ -59,14 +63,13 @@ async def main():
         await notifier.stop()
     except Exception as e:
         logger.log_error(f"Error in main: {str(e)}")
-        if 'notifier' in locals():  # notifier가 초기화된 경우에만 호출
+        if 'notifier' in locals():
             await notifier.send_error_notification(
                 error_type="Main Error",
                 error_message=str(e)
             )
         raise
 
-
 if __name__ == "__main__":
     # Run the main function
-    asyncio.run(main())
+    asyncio.run(main()) 
